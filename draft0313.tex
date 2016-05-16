@@ -362,6 +362,9 @@ If both termination criteria are not satisfied, go back to \textbf{STEP 1}.
 
 
 
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -388,11 +391,10 @@ In pursuit of investigating the effect of reserving capacities in the large flee
 \end{figure}
 
 % describe the code used
-The iterative model was implemented in Python 3.4, and Gurobi 6.5.0 is used as an solver for the Mixed Integer Linear Program. The running time for the iterative MILP-Hypercube procedure using Hanover County data were 27 seconds in average including the time spend for running Hypercube models less than 0.17 second for all cases. The runtime for scaled data with large fleet was  The load imbalance tolerance threshold was set to 2 percent, and server busy probability imbalance tolerance was set to 1 percent.
+The iterative model was implemented in Python 3.4, and Gurobi 6.5.0 is used as an solver for the Mixed Integer Linear Program. The running time for the iterative MILP-Hypercube procedure using Hanover County data were 27 seconds in average including the time spend for running Hypercube models less than 0.17 second for all cases. The runtime for scaled data with large fleet was -- in average. The load imbalance tolerance threshold was set to 10 percent, and server busy probability imbalance tolerance was set to 1 percent.
 
 % describe simulation
 Throughout the section, analytical results were compared to the result of discrete-event simulation. The purpose of evaluating the result by simulation is to confirm the validity of cutoff model as well as iterative MILP-Hypercube procedure. The simulation used the same demand distribution and geographical data as the analytical model, and the resulted deployment and dispatch decisions from the analytical model were also used as inputs for the simulation to set the policy. The program was implemented in Python 3.4, ran until 100,000 call arrives and repeated 30 times to generate summary statistics for dispatch probabilities, server busy probabilities, steady-state probabilities and coverage over the high priority calls. The computational time for the simulation were --,-- and -- seconds for cutoff values $s1=3,4,5$ each. Note that the runtime of the simulation is significantly longer than the runtime for Hypercube model that serves the similar function, which is to evaluate the system given the preference lists. In pursuit of precisely getting statistics from rare events with less than 1 percent($P_s$ from the event that all servers are busy, $f^p(jk)$ for $k=5$, the simulation should be run for a long time, which highlights the another benefit of developing an analytical model like the Hypercube model.
-
 
 
 
@@ -400,35 +402,23 @@ Throughout the section, analytical results were compared to the result of discre
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.72]{coverage} 
-\includegraphics[scale=0.72]{coverage_Large}
+%\includegraphics[scale=0.7]{coverage} 
+\includegraphics[scale=0.9]{coverage_simple} 
 \caption{Coverage over High Priority Calls Using Different Cutoff Numbers in (a) Hanover County dataset (b) Scaled Hanover County dataset with Large Fleet}
 \label{fig:coverage}
 \end{figure}
 
 The resulted coverages over the high priority calls are displayed in figure \ref{fig:coverage}. The left plot (a) in figure \ref{fig:coverage} show the resulted expected coverage over high priority calls from MILP model and Simulation with 5 servers. The coverage improvement is monotonic as the system reserve more servers by setting the cutoff number $s_1$ lower. 
  
-The right plot (b) was drawn over a scaled-up version of Hanover County dataset. The effect of capacity reservation on high-priority call coverage is more clear in this large fleet system. Specifically, always reserving 8 half of the fleet for high priority calls, the coverage improvement is as large as -- percent. The marginal improvement was largest when the number of reserved server was increased from 3 to 4, that the decrement of cutoff number $s_1$ just by 1 resulted the coverage improvement of 1.49 percent. Considering the fact that the maximum achievable coverage of this system is only --(which is gained by assuming that every call is served immediately by the server that is located at the most reachable station), the improvement from -- to -- by reserving only one server is significant.
-
-Another noticeable observation is that there exist a right level of capacity reservation. The coverage improvement appears to be not monotonic in number of reserved servers. (better use a expression like threshold/upperbound/cutoff?)
-
-\todo[inline]{(TODO) Add a plot for simulation result that keep using the same preference lists, but show how imbalanced their server utilization is. That will explain why coverage is not improving over a certain reserving number(or under a certain cutoff number)}
+The right plot (b) was drawn over a scaled-up version of Hanover County dataset. The effect of capacity reservation on high-priority call coverage is more clear in this large fleet system. Specifically, the marginal improvement was largest when the number of reserved server was increased from 5 to 6, that the decrement of cutoff number $s_1$ just by 1 resulted the coverage improvement of 1.65 percent. Considering the fact that the maximum achievable coverage of this system is only 81.28 percent (which is gained by assuming that every call is served immediately by the server that is located at the most reachable station), the improvement from 64.75 to 66.40 percent by reserving single additional server is significant.
 
 Lastly, in a model validation context, the analytical results were compared to the simulation results. The dotted lines in figure \ref{fig:coverage} (a) and (b) shows the simulation result that corresponds to the analytical result. The coverage levels for all cutoff numbers were very close for both of analytical MILP model and the simulation model, with differences in coverage result less than -- percent in the original data and less than -- percent in the large fleet system, for all cutoff number $s_1$ given.
 
-\todo[inline]{(Q) How about reordering subsections: showing coverage first and hypercube statistics later? Because we have to talk about the trade-off between loss in p(serve low calls) and gain(coverage improvement) }
+The resulted effect on the coverage is a collaboration of two factors. First, by reserving more servers for high priority call arrivals, the dispatch probability of sending highly preferred server increases, which results in the improvement in the coverage. Also, with different correction factor and server busy probability given MILP program produces different deployment and dispatch decisions that is optimized for given cutoff number. %We will examine each factor in detail in the next subsection.
 
-The resulted effect on the coverage is a collaboration of two factors. First, by reserving more servers for high priority call arrivals, the dispatch probability of sending highly preferred server increases, which results in the improvement in the coverage. Also, with different correction factor and server busy probability given MILP program produces different deployment and dispatch decisions that is optimized for given cutoff number. We will examine each factor in detail in the next subsection.
+%\todo[inline]{(TODO) illustrate a difference in preference lists by reserving capacity. visualizing a first-preferred district with selected open station? }
 
-% And then the analysis on dispatch prob and pref list follows.
-
-%\subsection{Preference Lists}
-%\todo[inline]{(TODO) illustrate a difference in preference lists by reserving capacity. How about visualizing a first-preferred district with selected open station? I think this is needed anyway since we have to display the detailed result from the procedure somehow  other than the simple coverage}
- 
-
-
-
-\subsection{Dispatch Probability}
+%\subsection{Dispatch Probability}
 
 \begin{table}
 \centering
@@ -495,8 +485,27 @@ Dispatch probabilities for loss systems are shown in Table \ref{table:dispatchpr
 
 Finally, considering the fact the Hypercube model is an approximate model, the discrepancy between the analytical Hypercube model results and simulation results are relatively small enough to conclude that the Hypercube model is valid.
 
+% Here we display district design
+\begin{figure}
+\includegraphics[scale=0.4]{bH1_5_5}
+\includegraphics[scale=0.4]{bL1_5_5}
+\caption{District design for (a) High priority calls (b) Low priority calls in Hanover County dataset}
+\label{fig:district}
+\end{figure}
 
+Figure \ref{fig:district} shows the optimal district design for the original Hanover County dataset with 5 servers, cutoff $s1=5$. The district design is contiguous for high priority calls due to constraint \ref{eq:contiguity}, but is not for low priority calls. In this small dataset, district designs for high priority calls were not affected by the number of reserved servers.
 
+\begin{figure}
+\includegraphics[scale=0.25]{bH1_16_2}
+\includegraphics[scale=0.25]{bH1_16_8}
+\includegraphics[scale=0.25]{bH1_16_10}
+\caption{District design for high priority calls with (a) $s_1=2$ (b) $s_1=8$ (c) $s_1=10$ in the scaled Hanover County dataset}
+\label{fig:district_large}
+\end{figure}
+
+Figure \ref{fig:district_large} shows the optimal district designs for the scaled Hanover County dataset with 16 servers. Here district designs for high priority calls differ by the cutoff, which contributes to greater increase in the expected coverage by reserving capacities.
+
+ 
 
 \subsection{Infinite-line Queue Systems}
 \todo[inline]{(TODO) Brief results under the assumption of infty queue, to show there's no noticeable improvement under this scheme, so that we can validate loss system assumption. Let's simply display a dispatch probability table and coverage graph here which was drawn in the exact same way as previous sections, so that it clearly shows that with infinity queue reserving servers does not mean that much. Or what can it mean if it does.}
